@@ -20,6 +20,30 @@ const Sphere spheres[] = {
 	Sphere(15.0, Vec(50.0, 90.0, 81.6),Color(9,9,9), Color(), DIFFUSE),//照明
 };
 
+struct Material
+{
+    Material(const Color& _em, const Color& _cl, ReflectionType ref)
+    {
+        emission = _em;
+        color = _cl;
+        reflection_type = ref;
+    }
+    Color emission, color;
+    ReflectionType reflection_type;
+};
+    
+const Material materials[] = {
+	Material(Color(), Color(0.75, 0.25, 0.25),DIFFUSE),// 左
+	Material(Color(), Color(0.25, 0.25, 0.75),DIFFUSE),// 右
+	Material(Color(), Color(0.75, 0.75, 0.75),DIFFUSE),// 奥
+	Material(Color(), Color(), DIFFUSE),// 手前
+	Material(Color(), Color(0.75, 0.75, 0.75),DIFFUSE),// 床
+	Material(Color(), Color(0.75, 0.75, 0.75),DIFFUSE),// 天井
+	Material(Color(), Color(1,1,1)*.99, SPECULAR),// 鏡
+	Material(Color(), Color(1,1,1)*.99, REFRACTION),//ガラス
+	Material(Color(9,9,9), Color(), DIFFUSE),//照明
+};
+    
 // シーンとの交差判定関数
 inline bool intersect_scene(const Ray &ray, Intersection *intersection) {
 	const double n = sizeof(spheres) / sizeof(Sphere);

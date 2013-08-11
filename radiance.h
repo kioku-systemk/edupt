@@ -5,7 +5,6 @@
 
 #include "ray.h"
 #include "scene.h"
-#include "sphere.h"
 #include "intersection.h"
 #include "random.h"
 
@@ -22,7 +21,7 @@ Color radiance(const Ray &ray, Random *rnd, const int depth) {
 	if (!intersect_scene(ray, &intersection))
 		return BackgroundColor;
 
-	const Sphere &obj = spheres[intersection.object_id];
+	const Material &obj = materials[intersection.object_id];
 	const Hitpoint &hitpoint = intersection.hitpoint;
 	const Vec orienting_normal = dot(hitpoint.normal , ray.dir) < 0.0 ? hitpoint.normal: (-1.0 * hitpoint.normal); // 交差位置の法線（物体からのレイの入出を考慮）
 	// 色の反射率最大のものを得る。ロシアンルーレットで使う。
