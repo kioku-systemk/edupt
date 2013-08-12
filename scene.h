@@ -130,9 +130,9 @@ void convertSceneGraph(MOE::SceneGraph::Node* node, std::vector<const pulsar::Tr
         tris[i] = &g_ts[i];
 }
 
-inline bool sceneInit()
+inline bool sceneInit(s8* modelpath)
 {
-    FILE* fp = fopen("/Users/kioku/Desktop/modeldata.MRZ","rb");
+    FILE* fp = fopen(modelpath,"rb");
     if (!fp)
         return false;
     fseek(fp, 0, SEEK_END);
@@ -144,6 +144,7 @@ inline bool sceneInit()
     
     MOE::MrzLoader loader;
     MOE::SceneGraph::Node* root = loader.Load(reinterpret_cast<const void*>(modeldata));
+    delete [] modeldata;
     if (!root)
         return false;
 
