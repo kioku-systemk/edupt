@@ -13,19 +13,6 @@
 
 
 namespace edupt {
-
-struct Material
-{
-    Material(const Color& _em, const Color& _cl, ReflectionType ref)
-    {
-        emission_ = _em;
-        color_ = _cl;
-        reflection_type_ = ref;
-    }
-    Color emission_;
-	Color color_;
-	ReflectionType reflection_type_;
-};
     
 const Material materials[] = {
     Material(Color(), Color(0.75, 0.75, 0.75),REFLECTION_TYPE_DIFFUSE),//照明
@@ -44,8 +31,9 @@ pulsar::PLQBVHMeshAccelerator* g_bvh = 0;
 std::vector< std::vector<pulsar::Vector3> > g_tribufs;
 std::vector< pulsar::Triangle > g_ts;
 std::vector<const pulsar::Triangle*> g_tris;
+std::vector<Material> g_mats;
     
-void recGeoTris(MOE::SceneGraph::Node* node, std::vector< std::vector<pulsar::Vector3> >& tribufs)
+void recGeoTris(MOE::SceneGraph::Node* node, std::vector< std::vector<pulsar::Vector3> >& tribufs, std::vector<edupt::Material>& mats)
 {
     if (!node)
         return;
@@ -57,7 +45,7 @@ void recGeoTris(MOE::SceneGraph::Node* node, std::vector< std::vector<pulsar::Ve
         Group* grp = static_cast<Group*>(node);
         u32 n = grp->GetChildCount();
         for (u32 i = 0; i < n; ++i)
-            recGeoTris(grp->GetChild(i), tribufs);
+            recGeoTris(grp->GetChild(i), tribufs, mats);
     }
     else if(nt == NODETYPE_GEOMETRY)
     {
@@ -67,6 +55,14 @@ void recGeoTris(MOE::SceneGraph::Node* node, std::vector< std::vector<pulsar::Ve
         u32 idxoffset = geo->GetIndexTypeSize();
         u32 tcnt = icnt / 3;
         
+        const MOE::SceneGraph::Material* gm = geo->GetMaterial();
+        mats.push_back(edupt::Material());
+        edupt::Material& m = mats[mats.size()-1];
+        MOE::Math::vec4 col = gm->GetVec4("color");
+        m.color_ = Vec(col.x,col.y,col.z);
+        printf("%s - (%f,%f,%f)\n", gm->GetName().c_str(), col.x,col.y,col.z);
+        if (gm->GetName() == "light")
+            m.emission_ = Vec(10,10,10);
         tribufs.push_back(std::vector<pulsar::Vector3>());
         std::vector<pulsar::Vector3>& tri = tribufs[tribufs.size()-1];
         tri.reserve(1024*1024);
@@ -102,7 +98,8 @@ void convertSceneGraph(MOE::SceneGraph::Node* node, std::vector<const pulsar::Tr
 {
     g_tribufs.clear();
     g_ts.clear();
-    recGeoTris(node, g_tribufs);
+    g_mats.clear();
+    recGeoTris(node, g_tribufs, g_mats);
     
     size_t alltrinum = 0;
     for (size_t i = 0; i < g_tribufs.size(); ++i)
@@ -173,6 +170,7 @@ inline bool intersect_scene(const Ray &ray, Intersection *intersection) {
         intersection->hitpoint_.normal_.y_ = isect.normal[1];
         intersection->hitpoint_.normal_.z_ = isect.normal[2];
         intersection->object_id_ = isect.material;
+        intersection->mat_ = &g_mats[isect.material];
     }
     
     /*const double n = sizeof(spheres) / sizeof(Sphere);

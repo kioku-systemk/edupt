@@ -15,6 +15,19 @@ namespace edupt {
     
     const double kIor = 1.5; // 屈折率(Index of refraction)
     
+    struct Material
+    {
+        Material(){emission_ = 0; color_ = 0; reflection_type_ = REFLECTION_TYPE_DIFFUSE; }
+        Material(const Color& _em, const Color& _cl, ReflectionType ref)
+        {
+            emission_ = _em;
+            color_ = _cl;
+            reflection_type_ = ref;
+        }
+        Color emission_;
+        Color color_;
+        ReflectionType reflection_type_;
+    };
 };
 
 #endif

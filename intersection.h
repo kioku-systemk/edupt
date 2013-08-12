@@ -3,7 +3,7 @@
 
 #include "vec.h"
 #include "constant.h"
-
+#include "material.h"
 
 namespace edupt {
     
@@ -18,8 +18,9 @@ namespace edupt {
     struct Intersection {
         Hitpoint hitpoint_;
         int object_id_;
+        Material* mat_;
         
-        Intersection() : object_id_(-1) {}
+        Intersection() : object_id_(-1),mat_(0) {}
     };
     
 };

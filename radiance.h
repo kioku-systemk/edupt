@@ -10,7 +10,7 @@
 
 namespace edupt {
 
-const Color BackgroundColor = Color(0.0, 1.0, 0.0);
+const Color BackgroundColor = Color(0.5, 0.5, 0.5);
 const int Depth = 5; // ロシアンルーレットで打ち切らない最大深度
 const int DpethLimit = 64;
 
@@ -21,7 +21,7 @@ Color radiance(const Ray &ray, Random *rnd, const int depth) {
 	if (!intersect_scene(ray, &intersection))
 		return BackgroundColor;
     
-	const Material &now_object = materials[intersection.object_id_];
+	const Material &now_object = *intersection.mat_;//materials[intersection.object_id_];
 	const Hitpoint &hitpoint = intersection.hitpoint_;
 	const Vec orienting_normal = dot(hitpoint.normal_ , ray.dir_) < 0.0 ? hitpoint.normal_: (-1.0 * hitpoint.normal_); // 交差位置の法線（物体からのレイの入出を考慮）
 
