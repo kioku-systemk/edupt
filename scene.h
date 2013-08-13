@@ -49,7 +49,7 @@ const edupt::Vec& GetCameraUp()
     return g_camup;
 }
 
-void recGeoTris(MOE::SceneGraph::Node* node, std::vector< std::vector<pulsar::Vector3> >& tribufs, std::vector<edupt::Material>& mats)
+void recGeoTris(MOE::SceneGraph::Node* node, MOE::Math::matrix mtx, std::vector< std::vector<pulsar::Vector3> >& tribufs, std::vector<edupt::Material>& mats)
 {
     if (!node)
         return;
@@ -58,18 +58,16 @@ void recGeoTris(MOE::SceneGraph::Node* node, std::vector< std::vector<pulsar::Ve
     NODETYPE nt = node->GetType();
     if (nt == NODETYPE_GROUP || nt == NODETYPE_TRANSFORM)
     {
+        if (nt == NODETYPE_TRANSFORM){
+            Transform* tr = static_cast<Transform*>(node);
+            mtx = mtx * tr->GetMatrix();
+        }
         if (node->GetName() == "Camera")
         {
-            Transform* tr = static_cast<Transform*>(node);
             using namespace MOE::Math;
-            matrix cm = tr->GetMatrix();
-            vec4 pos = vec4(0,0,0,1);
-            pos = cm * pos;
-            vec4 dir = vec4(0,0,-1,0);
-            dir = cm * dir;
-            vec4 up = vec4(0,1,0,0);
-            up = cm * up;
-            
+            const vec4 pos = mtx * vec4(0,0,0,1);
+            const vec4 dir = mtx * vec4(0,0,-1,0);
+            const vec4 up  = mtx * vec4(0,1,0,0);
             g_campos = Vec(pos.x,pos.y,pos.z);
             g_camdir = Vec(dir.x,dir.y,dir.z);
             g_camup  = Vec(up.x, up.y, up.z );
@@ -77,7 +75,7 @@ void recGeoTris(MOE::SceneGraph::Node* node, std::vector< std::vector<pulsar::Ve
         Group* grp = static_cast<Group*>(node);
         u32 n = grp->GetChildCount();
         for (u32 i = 0; i < n; ++i)
-            recGeoTris(grp->GetChild(i), tribufs, mats);
+            recGeoTris(grp->GetChild(i), mtx, tribufs, mats);
     }
     else if(nt == NODETYPE_GEOMETRY)
     {
@@ -95,6 +93,11 @@ void recGeoTris(MOE::SceneGraph::Node* node, std::vector< std::vector<pulsar::Ve
         printf("%s - (%f,%f,%f)\n", gm->GetName().c_str(), col.x,col.y,col.z);
         if (gm->GetName() == "light")
             m.emission_ = Vec(10,10,10);
+        if (gm->GetName() == "mirror")
+            m.reflection_type_ = REFLECTION_TYPE_SPECULAR;
+        if (gm->GetName() == "glass")
+            m.reflection_type_ = REFLECTION_TYPE_REFRACTION;
+        
         tribufs.push_back(std::vector<pulsar::Vector3>());
         std::vector<pulsar::Vector3>& tri = tribufs[tribufs.size()-1];
         tri.reserve(1024*1024);
@@ -106,9 +109,8 @@ void recGeoTris(MOE::SceneGraph::Node* node, std::vector< std::vector<pulsar::Ve
                 pulsar::Vector3 t;
                 const u32 i3 = 3*i;
                 for (u32 j = 0; j < 3; ++j){
-                    tri.push_back(pulsar::Vector3(vtx[idx[i3+j]].pos.x,
-                                                  vtx[idx[i3+j]].pos.y,
-                                                  vtx[idx[i3+j]].pos.z));
+                    const MOE::Math::vec4 tv = mtx * MOE::Math::vec4(vtx[idx[i3+j]].pos, 1.0f);
+                    tri.push_back(pulsar::Vector3(tv.x, tv.y, tv.z));
                 }
             }
         } else {
@@ -118,9 +120,8 @@ void recGeoTris(MOE::SceneGraph::Node* node, std::vector< std::vector<pulsar::Ve
                 pulsar::Vector3 t;
                 const u32 i3 = 3*i;
                 for (u32 j = 0; j < 3; ++j){
-                    tri.push_back(pulsar::Vector3(vtx[idx[i3+j]].pos.x,
-                                                  vtx[idx[i3+j]].pos.y,
-                                                  vtx[idx[i3+j]].pos.z));
+                    const MOE::Math::vec4 tv = mtx * MOE::Math::vec4(vtx[idx[i3+j]].pos, 1.0f);
+                    tri.push_back(pulsar::Vector3(tv.x, tv.y, tv.z));
                 }
             }
         }
@@ -131,7 +132,8 @@ void convertSceneGraph(MOE::SceneGraph::Node* node, std::vector<const pulsar::Tr
     g_tribufs.clear();
     g_ts.clear();
     g_mats.clear();
-    recGeoTris(node, g_tribufs, g_mats);
+    MOE::Math::matrix mtx = MOE::Math::Identity();
+    recGeoTris(node, mtx, g_tribufs, g_mats);
     
     size_t alltrinum = 0;
     for (size_t i = 0; i < g_tribufs.size(); ++i)
