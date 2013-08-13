@@ -32,7 +32,23 @@ std::vector< std::vector<pulsar::Vector3> > g_tribufs;
 std::vector< pulsar::Triangle > g_ts;
 std::vector<const pulsar::Triangle*> g_tris;
 std::vector<Material> g_mats;
-    
+edupt::Vec g_campos=Vec(0.0, 50.0, 320.0), g_camdir=Vec(0.0, 0.0, -1.0), g_camup=Vec(0.0, 1.0, 0.0);
+
+const edupt::Vec& GetCameraPos()
+{
+    return g_campos;
+}
+
+const edupt::Vec& GetCameraDir()
+{
+    return g_camdir;
+}
+
+const edupt::Vec& GetCameraUp()
+{
+    return g_camup;
+}
+
 void recGeoTris(MOE::SceneGraph::Node* node, std::vector< std::vector<pulsar::Vector3> >& tribufs, std::vector<edupt::Material>& mats)
 {
     if (!node)
@@ -42,6 +58,22 @@ void recGeoTris(MOE::SceneGraph::Node* node, std::vector< std::vector<pulsar::Ve
     NODETYPE nt = node->GetType();
     if (nt == NODETYPE_GROUP || nt == NODETYPE_TRANSFORM)
     {
+        if (node->GetName() == "Camera")
+        {
+            Transform* tr = static_cast<Transform*>(node);
+            using namespace MOE::Math;
+            matrix cm = tr->GetMatrix();
+            vec4 pos = vec4(0,0,0,1);
+            pos = cm * pos;
+            vec4 dir = vec4(0,0,-1,0);
+            dir = cm * dir;
+            vec4 up = vec4(0,1,0,0);
+            up = cm * up;
+            
+            g_campos = Vec(pos.x,pos.y,pos.z);
+            g_camdir = Vec(dir.x,dir.y,dir.z);
+            g_camup  = Vec(up.x, up.y, up.z );
+        }
         Group* grp = static_cast<Group*>(node);
         u32 n = grp->GetChildCount();
         for (u32 i = 0; i < n; ++i)
