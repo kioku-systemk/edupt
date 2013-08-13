@@ -5,7 +5,6 @@
 #include <cstring>
 #include <iostream>
 #include <sstream>
-#include <math.h>
 
 namespace pulsar{
 	

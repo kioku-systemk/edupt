@@ -5,6 +5,11 @@
 #include <utility>
 #include <algorithm>
 
+#ifdef _WIN32
+#undef max
+#undef min
+#endif
+
 namespace pulsar{
 	
 	class Bound
