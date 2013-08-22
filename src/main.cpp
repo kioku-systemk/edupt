@@ -5,7 +5,7 @@
 int main(int argc, char **argv) {
 	printf("Path tracing renderer: edupt based mrz renderer\n\n");
     if (argc < 2){
-        printf("edupt [mrz filepath].\n");
+        printf("edupt [mrz filepath] [spp=64] [width=640] [height=480]\n");
         return 0;
     }
     
