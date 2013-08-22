@@ -1,4 +1,4 @@
-﻿#ifndef _RADIANCE_H_
+#ifndef _RADIANCE_H_
 #define _RADIANCE_H_
 
 #include <algorithm>
@@ -10,7 +10,7 @@
 
 namespace edupt {
 
-const Color BackgroundColor = Color(0.5, 0.5, 0.5);
+const Color BackgroundColor = Color(1.0, 1.0, 1.0);
 const int Depth = 5; // ロシアンルーレットで打ち切らない最大深度
 const int DpethLimit = 64;
 
