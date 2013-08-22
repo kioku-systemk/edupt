@@ -92,7 +92,7 @@ void recGeoTris(MOE::SceneGraph::Node* node, MOE::Math::matrix mtx, std::vector<
         m.color_ = Vec(col.x,col.y,col.z);
         printf("%s - (%f,%f,%f)\n", gm->GetName().c_str(), col.x,col.y,col.z);
         if (gm->GetName() == "light")
-            m.emission_ = Vec(10,10,10);
+            m.emission_ = Vec(10*col.x,10*col.y,10*col.z);
         if (gm->GetName() == "mirror")
             m.reflection_type_ = REFLECTION_TYPE_SPECULAR;
         if (gm->GetName() == "glass")
