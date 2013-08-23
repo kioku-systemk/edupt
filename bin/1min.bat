@@ -1,0 +1,1 @@
+edupt.exe modeldata.MRZ 8 640 360
