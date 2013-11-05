@@ -16,6 +16,7 @@
 #include <vector>
 #include <utility>
 #include <limits>
+#include <cstddef>
 
 #include "aligned_vector.hpp"
 
