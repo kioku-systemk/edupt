@@ -28,3 +28,4 @@ int main(int argc, char **argv) {
 	edupt::render(width, height, spp/4, 2);
     return 0;
 }
+
