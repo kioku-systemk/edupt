@@ -8,6 +8,7 @@
 #include "MrzLoader.h"
 
 #include <string>
+#include <string.h>
 
 #include "SceneGraph.h"
 #include "Log.h"
